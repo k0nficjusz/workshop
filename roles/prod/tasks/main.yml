@@ -1,0 +1,110 @@
+---
+# tasks file for prod
+#
+
+
+- name: Install Apache on RedHat
+  yum:
+          name: httpd
+          state: present
+          update_cache: yes
+  environment:
+          http_proxy: http://proxy.posti.fi:8086
+          https_proxy: http://proxy.posti.fi:8086        
+  when: ansible_os_family == "RedHat"
+
+- name: Start Apache on RedHat
+  service:
+          name: httpd
+          state: started
+          enabled: yes
+  when: ansible_os_family == "RedHat"
+
+- name: Install Apache on Debian
+  apt:
+          name: apache2
+          state: present
+          update_cache: yes
+  environment:
+          http_proxy: http://proxy.posti.fi:8086
+          https_proxy: http://proxy.posti.fi:8086
+  when: ansible_os_family == "Debian"
+
+- name: Start Apache on Debian
+  service:
+          name: apache2
+          state: started
+          enabled: yes
+  when: ansible_os_family == "Debian"
+
+- name: Install unzip on RedHat
+  yum:
+          name: unzip
+          state: present
+          update_cache: yes
+  environment:
+          http_proxy: http://proxy.posti.fi:8086
+          https_proxy: http://proxy.posti.fi:8086
+  when: ansible_os_family == "RedHat"
+
+- name: Install unzip on Debian
+  apt:
+          name: unzip
+          state: present
+          update_cache: yes
+  environment:
+          http_proxy: http://proxy.posti.fi:8086
+          https_proxy: http://proxy.posti.fi:8086
+  when: ansible_os_family == "Debian"
+
+- name: Start firewalld on RedHat
+  service:
+          name: firewalld.service
+          state: started
+          enabled: yes
+  when: ansible_os_family == "RedHat"
+
+- name: Open port 80 on RedHat
+  firewalld:
+          port: 80/tcp
+          permanent: yes
+          state: enabled
+  notify:
+      - Reload firewalld
+  when: ansible_os_family == "RedHat"
+
+- name: Open port 80 on Debian
+  iptables:
+          chain: INPUT
+          destination_port: 80
+          jump: ACCEPT
+          protocol: tcp
+  when: ansible_os_family == "Debian"
+
+- name: Deploy web page
+  unarchive:
+          src: files/index.zip
+          dest: /var/www/html/
+  notify: 
+      - Restart Apache RedHat
+      - Restart Apache Debian
+
+- name: Deploy template to apache
+  template:
+          src: templates/index.html.j2
+          dest: /var/www/html/index.html
+  notify: 
+      - Restart Apache RedHat
+      - Restart Apache Debian
+
+- name: force all notified handlers to run at this point, not waiting for normal sync points
+  meta: flush_handlers
+
+- name: Check web and variables
+  uri:
+          url: http://192.168.57.51
+          return_content: yes
+  register: secondweb
+  failed_when: "'Coming Soon! #TODO - Hostname is' not in secondweb.content"
+
+

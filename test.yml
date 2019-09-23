@@ -1,0 +1,9 @@
+---
+
+- hosts: test
+  sudo: yes
+  roles:
+          - test
+
+
+...

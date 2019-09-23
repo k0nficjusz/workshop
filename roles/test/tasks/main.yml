@@ -1,0 +1,70 @@
+---
+# tasks file for test
+#
+
+
+- name: Install Apache
+  yum:
+          name: httpd
+          state: present
+          update_cache: yes
+  environment:
+          http_proxy: http://proxy.posti.fi:8086
+          https_proxy: http://proxy.posti.fi:8086        
+  when: ansible_os_family == "RedHat"
+
+- name: Start Apache
+  service:
+          name: httpd
+          state: started
+          enabled: yes
+
+- name: Install unzip
+  yum:
+          name: unzip
+          state: present
+          update_cache: yes
+  environment:
+          http_proxy: http://proxy.posti.fi:8086
+          https_proxy: http://proxy.posti.fi:8086
+
+- name: Start firewalld
+  service:
+          name: firewalld.service
+          state: started
+          enabled: yes
+
+- name: Open port 80
+  firewalld:
+          port: 80/tcp
+          permanent: yes
+          state: enabled
+  notify:
+      - Reload firewalld
+  when: ansible_os_family == "RedHat"
+
+- name: Deploy web page
+  unarchive:
+          src: files/index.zip
+          dest: /var/www/html/
+  notify: 
+      - Restart Apache
+
+- name: Deploy template to apache
+  template:
+          src: templates/index.html.j2
+          dest: /var/www/html/index.html
+  notify: 
+      - Restart Apache
+
+- name: force all notified handlers to run at this point, not waiting for normal sync points
+  meta: flush_handlers
+
+- name: Check web and variables
+  uri:
+          url: http://192.168.57.51
+          return_content: yes
+  register: secondweb
+  failed_when: "'Coming Soon! #TODO - Hostname is' not in secondweb.content"
+
+

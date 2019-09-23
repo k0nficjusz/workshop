@@ -1,0 +1,13 @@
+---
+# handlers file for test
+#
+
+- name: Restart Apache
+  service:
+          name: httpd
+          state: restarted
+
+- name: Reload firewalld
+  command: firewall-cmd --reload
+
+

@@ -1,0 +1,20 @@
+---
+# handlers file for prod
+#
+
+- name: Restart Apache RedHat
+  service:
+          name: httpd
+          state: restarted
+  when: ansible_os_family == "RedHat"
+
+- name: Restart Apache Debian
+  service:
+          name: apache2
+          state: restarted
+  when: ansible_os_family == "Debian"
+
+- name: Reload firewalld
+  command: firewall-cmd --reload
+  when: ansible_os_family == "RedHat"
+

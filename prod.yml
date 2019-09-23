@@ -1,0 +1,10 @@
+---
+
+- hosts: prod
+  sudo: yes
+  serial: 1
+  roles:
+          - prod
+
+
+...
