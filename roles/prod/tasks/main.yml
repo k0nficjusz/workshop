@@ -88,23 +88,30 @@
   notify: 
       - Restart Apache RedHat
       - Restart Apache Debian
+  when: inventory_hostname == "w2" or inventory_hostname == "w3"
 
 - name: Deploy template to apache
   template:
           src: templates/index.html.j2
           dest: /var/www/html/index.html
+  when: inventory_hostname == "w2" or inventory_hostname == "w3"
   notify: 
       - Restart Apache RedHat
       - Restart Apache Debian
 
+- name: Deploy balancer apache template - default site
+  template:
+          src: templates/default-site.conf.j2
+          dest: /etc/httpd/conf.d/default-site.conf
+  notify:
+      - Restart Apache RedHat
+      - Restart Apache Debian 
+  when: 
+      - ansible_os_family == "RedHat"
+      - inventory_hostname == "w4"
+      
 - name: force all notified handlers to run at this point, not waiting for normal sync points
   meta: flush_handlers
 
-- name: Check web and variables
-  uri:
-          url: http://192.168.57.52
-          return_content: yes
-  register: secondweb
-  failed_when: "'Coming Soon! #TODO - Hostname is' not in secondweb.content"
 
 
