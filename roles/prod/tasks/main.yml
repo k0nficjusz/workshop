@@ -102,7 +102,7 @@
 
 - name: Check web and variables
   uri:
-          url: http://192.168.57.51
+          url: http://192.168.57.52
           return_content: yes
   register: secondweb
   failed_when: "'Coming Soon! #TODO - Hostname is' not in secondweb.content"

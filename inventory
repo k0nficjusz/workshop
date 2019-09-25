@@ -10,6 +10,6 @@ w1 ansible_ssh_host=192.168.57.51 ansible_ssh_user=ansiblesrv
 [prod]
 w2 ansible_ssh_host=192.168.57.52 ansible_ssh_user=ansiblesrv
 w3 ansible_ssh_host=192.168.57.53 ansible_ssh_user=ansiblesrv
+
+[bal]
 w4 ansible_ssh_host=192.168.57.54 ansible_ssh_user=ansiblesrv
-
-
