@@ -1,0 +1,45 @@
+---
+# tasks file for bal
+#
+
+- name: Install Apache on RedHat
+  yum:
+          name: httpd
+          state: present
+          update_cache: yes
+  environment:
+          http_proxy: http://proxy.posti.fi:8086
+          https_proxy: http://proxy.posti.fi:8086
+  when: ansible_os_family == "RedHat"
+
+- name: Start Apache on RedHat
+  service:
+          name: httpd
+          state: started
+          enabled: yes
+  when: ansible_os_family == "RedHat"
+
+- name: Start firewalld on RedHat
+  service:
+          name: firewalld.service
+          state: started
+          enabled: yes
+  when: ansible_os_family == "RedHat"
+
+- name: Open port 80 on RedHat
+  firewalld:
+          port: 80/tcp
+          permanent: yes
+          state: enabled
+  notify:
+      - Reload firewalld
+  when: ansible_os_family == "RedHat"
+
+- name: Deploy balancer apache template - default site
+  template:
+          src: templates/default-site.conf.j2
+          dest: /etc/httpd/conf.d/default-site.conf
+  notify:
+      - Restart Apache RedHat
+  when: ansible_os_family == "RedHat"      
+ 

@@ -1,0 +1,14 @@
+---
+# handlers file for bal
+#
+
+- name: Restart Apache RedHat
+  service:
+          name: httpd
+          state: restarted
+  when: ansible_os_family == "RedHat"
+
+- name: Reload firewalld
+  command: firewall-cmd --reload
+  when: ansible_os_family == "RedHat"
+
