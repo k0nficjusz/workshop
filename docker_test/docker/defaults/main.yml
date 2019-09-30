@@ -1,0 +1,9 @@
+---
+# defaults file for docker
+
+proxy:
+  http_proxy: http://proxy.posti.fi:8086
+  https_proxy: http://proxy.posti.fi:8086     
+  ftp_proxy: http://proxy.posti.fi:8086
+  rsync_proxy: http://proxy.posti.fi:8086
+

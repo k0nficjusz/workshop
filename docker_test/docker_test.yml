@@ -1,0 +1,6 @@
+---
+
+- hosts: w1
+  become: yes
+  roles:
+    - docker
