@@ -1,59 +1,15 @@
 ---
-# tasks file for docker
+# tasks file for docke
 
-- name: Remove docker if installed from CentOS repo
-  yum:
-          name:
-            - docker
-            - docker-client
-            - docker-client-latest
-            - docker-common
-            - docker-latest
-            - docker-latest-logrotate
-            - docker-logrotate
-            - docker-engine
-          state: removed
-  environment: "{{ proxy }}"
+- name: Install docker on Centos
+  include_tasks:
+    file: install_docker_Centos.yml 
+  when:
+    - ansible_facts['distribution'] == "CentOS"
 
-- name: Install required packages
-  yum:
-          name: " {{ item }}"
-          state: latest
-  with_items:
-    - yum-utils
-    - device-mapper-persistent-data
-    - lvm2      
-  environment: "{{ proxy }}"
+- name: Install docker on Debian
+  include_tasks:
+    file: install_docker_Debian.yml
+  when:
+    - ansible_facts['distribution'] == "Debian"
 
-- name: Add docker repo
-  get_url:
-          url: https://download.docker.com/linux/centos/docker-ce.repo
-          dest: /etc/yum.repos.d/docer-ce.repo
-  environment: "{{ proxy }}"
-
-- name: Enable Docker Edge repo
-  ini_file:
-          dest: /etc/yum.repos.d/docer-ce.repo
-          section: 'docker-ce-edge'
-          option: enabled
-          value: 0
-
-- name: Enable Docker Test repo
-  ini_file:
-          dest: /etc/yum.repos.d/docer-ce.repo
-          section: 'docker-ce-test'
-          option: enabled
-          value: 0
-
-- name: Install Docker
-  package:
-          name: docker-ce
-          state: latest
-  environment: "{{ proxy }}"
-
-- name: Start Docker service
-  service:
-          name: docker
-          state: started
-          enabled: yes
-          

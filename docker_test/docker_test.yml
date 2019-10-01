@@ -1,6 +1,6 @@
 ---
 
-- hosts: w1
+- hosts: all
   become: yes
   roles:
     - docker

@@ -1,0 +1,71 @@
+---
+# tasks file for docker
+
+- name: Remove docker if installed from Debian repo
+  apt:
+          name:
+            - docker
+            - docker-engine
+            - docker.io
+            - docker.io
+            - runc  
+          state: removed
+  environment: "{{ proxy }}"
+
+- name: Install required packages
+  apt:
+          name:
+            - wget
+            - apt-transport-https
+            - ca-certificates
+            - curl
+            - gnupg2
+            - software-properties-common  
+          state: latest
+          update_cache: yes
+          force_apt_get: yes
+          autoclean: yes
+  environment: "{{ proxy }}"
+
+- name: Add Apt signing key from official docker repo
+  apt_key:
+          url: https://download.docker.com/linux/debian/gpg
+          state: present
+  environment: "{{ proxy }}"
+
+- name: add docker official repository for Debian Jessie
+  apt_repository:
+          repo: deb [arch=amd64] https://download.docker.com/linux/debian jessie stable
+          state: present
+  environment: "{{ proxy }}"        
+
+- name: Install Docker
+  apt:
+          name: docker-ce
+          state: latest
+          update_cache: yes
+          force_apt_get: yes
+  environment: "{{ proxy }}"
+
+- name: Create docker.service.d directory
+  file:
+          path: /etc/systemd/system/docker.service.d
+          state: directory
+
+- name: Proxy docker
+  template:
+          src: templates/http-proxy.conf.j2
+          dest: /etc/systemd/system/docker.service.d/http-proxy.conf
+
+- name: systemctl daemon-reload
+  systemd:
+          state: restarted
+          daemon_reload: yes
+          name: docker
+
+- name: Start Docker service
+  service:
+          name: docker
+          state: started
+          enabled: yes
+          
